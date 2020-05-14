@@ -40,7 +40,7 @@ public class CubeDetector {
             Imgproc.approxPolyDP(new MatOfPoint2f(contours.get(i).toArray()), approx, epsilon, true);
             if (approx.rows() == 4 && approx.cols() == 1) {
                 MatOfPoint points = new MatOfPoint(approx.toArray());
-                if (Math.abs(Imgproc.contourArea(points)) > 500) {
+                if (Math.abs(Imgproc.contourArea(points)) > 300 && Math.abs(Imgproc.contourArea(points))< 15000) {
                     Imgproc.drawContours(image, contours, i, new Scalar(150, 0, 0), 3);
                     Rect rect = Imgproc.boundingRect(points);
                     rectangles.add(rect);
@@ -114,7 +114,7 @@ public class CubeDetector {
     private Color getColor(Rect rect, Mat image) {
         List<RgbColor> colors = RgbColor.cubeColors;
         double[] center = image.get(rect.x + rect.width / 2, rect.y + rect.height / 2);
-        RgbColor centerColor = new RgbColor(center[0], center[1], center[2]);
+        RgbColor centerColor = new RgbColor(center[2], center[1], center[0]);
         RgbColor closestColor = new RgbColor(0,0,0);
 
         double min = 999999;

@@ -11,11 +11,11 @@ public class Main {
     public static void main(String[] args) {
         System.out.println("Hello world");
         System.out.println(Core.VERSION);
-
+        CubeDetector cubeDetector = new CubeDetector();
 
         Mat image = Imgcodecs.imread("input/cube.jpg");
-        CubeDetector cubeDetector = new CubeDetector();
         image = cubeDetector.processImage(image);
+
         cubeDetector.printWalls();
         Imgcodecs.imwrite("output/edge.jpg", image);
 
