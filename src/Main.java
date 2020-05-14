@@ -60,12 +60,15 @@ public class Main {
 
         Imgcodecs.imwrite("output/edge.jpg", image);
 
-//        EventQueue.invokeLater(new Runnable() {
-//            @Override
-//            public void run() {
-//                new Frame();
-//            }
-//        });
+        EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                new Frame();
+            }
+        });
+        CameraLoader camera = new CameraLoader();
+        camera.loadCamera();
+
     }
 
     private static Color getColor(Rect rect, Mat image) {
