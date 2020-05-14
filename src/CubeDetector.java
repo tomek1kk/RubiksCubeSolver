@@ -1,4 +1,5 @@
 import org.opencv.core.*;
+import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
 import java.util.ArrayList;
@@ -15,6 +16,7 @@ public class CubeDetector {
     }
 
     public Mat processImage(Mat image) {
+        Mat imageCopy = image.clone();
         List<Rect> rectangles = new ArrayList<>();
         Mat grayImage = new Mat();
         Imgproc.cvtColor(image, grayImage, Imgproc.COLOR_RGB2GRAY);
@@ -50,7 +52,7 @@ public class CubeDetector {
 
         if (rectangles.size() == 9 ) {
             System.out.println("Found all colors!");
-            CubeWall wall = generateCubeWall(rectangles, image);
+            CubeWall wall = generateCubeWall(rectangles, imageCopy);
             if (wall != null)
                 walls.add(wall);
         }
@@ -61,6 +63,7 @@ public class CubeDetector {
     }
 
     private CubeWall generateCubeWall(List<Rect> rects, Mat image) {
+        Imgcodecs.imwrite("output/edge2.jpg", image);
         if (rects.size() != 9)
             return null;
 
@@ -113,8 +116,18 @@ public class CubeDetector {
 
     private Color getColor(Rect rect, Mat image) {
         List<RgbColor> colors = RgbColor.cubeColors;
+        double[] test = image.get(156, 74);
         double[] center = image.get(rect.x + rect.width / 2, rect.y + rect.height / 2);
-        RgbColor centerColor = new RgbColor(center[2], center[1], center[0]);
+        double[] point1 = image.get(rect.x + rect.width / 3, rect.y + rect.height / 3);
+        double[] point2 = image.get(rect.x + rect.width * 2 / 3, rect.y + rect.height / 3);
+        double[] point3 = image.get(rect.x + rect.width / 3, rect.y + rect.height * 2 / 3);
+        double[] point4 = image.get(rect.x + rect.width * 2 / 3, rect.y + rect.height * 2 / 3);
+
+        RgbColor centerColor = new RgbColor(
+                (center[2] + point1[2] + point2[2] + point3[2] + point4[2]) / 5,
+                (center[1] + point1[1] + point2[1] + point3[1] + point4[1]) / 5,
+                (center[0] + point1[0] + point2[0] + point3[0] + point4[0]) / 5
+        );
         RgbColor closestColor = new RgbColor(0,0,0);
 
         double min = 999999;
