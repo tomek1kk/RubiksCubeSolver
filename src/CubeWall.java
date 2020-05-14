@@ -8,6 +8,7 @@ public class CubeWall {
     public Color block7;
     public Color block8;
     public Color block9;
+    public Color wallColor;
 
     public CubeWall() {}
     public CubeWall(Color block1, Color block2, Color block3, Color block4,
@@ -21,9 +22,11 @@ public class CubeWall {
         this.block7 = block7;
         this.block8 = block8;
         this.block9 = block9;
+        this.wallColor = block5;
     }
 
     public void printWall() {
+        System.out.println("Wall color: " + wallColor.toString());
         System.out.println("Block1: " + block1.toString());
         System.out.println("Block2: " + block2.toString());
         System.out.println("Block3: " + block3.toString());
