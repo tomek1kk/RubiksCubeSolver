@@ -1,4 +1,5 @@
 import org.opencv.core.Mat;
+import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.videoio.VideoCapture;
 
@@ -6,6 +7,9 @@ import javax.swing.*;
 import java.awt.image.BufferedImage;
 
 public class CameraLoader {
+    public boolean saveNextFrame;
+    public Mat savedFrame;
+    public boolean freshFrame = false;
 
     public void loadCamera() {
         Mat frame = new Mat();
@@ -17,13 +21,28 @@ public class CameraLoader {
         jframe.setContentPane(vidpanel);
         jframe.setVisible(true);
         jframe.setSize(650, 500);
-
+        saveNextFrame = false;
         while (true) {
             if (camera.read(frame)) {
+                if (saveNextFrame == true) {
+                    saveNextFrame = false;
+                    savedFrame = frame.clone();
+                    freshFrame = true;
+                }
                 ImageIcon image = new ImageIcon(getImage(frame));
                 vidpanel.setIcon(image);
                 vidpanel.repaint();
             }
+        }
+    }
+
+    public Mat getFrame() {
+        if (freshFrame == true) {
+            freshFrame = false;
+            return savedFrame;
+        }
+        else {
+            return null;
         }
     }
 

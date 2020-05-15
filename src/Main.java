@@ -8,26 +8,36 @@ import java.util.List;
 
 public class Main {
     static {System.loadLibrary(Core.NATIVE_LIBRARY_NAME);}
-    public static void main(String[] args) {
-        System.out.println("Hello world");
-        System.out.println(Core.VERSION);
+    public static void main(String[] args) throws InterruptedException {
         CubeDetector cubeDetector = new CubeDetector();
 
-        Mat image = Imgcodecs.imread("input/cube.jpg");
-        image = cubeDetector.processImage(image);
+        //Mat image = Imgcodecs.imread("input/cube.jpg");
+        //image = cubeDetector.processImage(image);
+        //cubeDetector.printWalls();
+        //Imgcodecs.imwrite("output/edge.jpg", image);
 
-        cubeDetector.printWalls();
-        Imgcodecs.imwrite("output/edge.jpg", image);
 
+
+
+        CameraLoader camera = new CameraLoader();
         EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-                new Frame();
+                new Frame(camera, cubeDetector);
             }
         });
-        CameraLoader camera = new CameraLoader();
-        camera.loadCamera();
 
+        Thread t1 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                camera.loadCamera();
+            }
+        });
+        t1.start();
+
+        //MyKeyListener keyListener = new MyKeyListener(camera, cubeDetector);
+
+//        Imgcodecs.imwrite("output/snap.jpg", cameraSnapshot);
     }
 
 

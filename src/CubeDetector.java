@@ -42,19 +42,29 @@ public class CubeDetector {
             Imgproc.approxPolyDP(new MatOfPoint2f(contours.get(i).toArray()), approx, epsilon, true);
             if (approx.rows() == 4 && approx.cols() == 1) {
                 MatOfPoint points = new MatOfPoint(approx.toArray());
-                if (Math.abs(Imgproc.contourArea(points)) > 300 && Math.abs(Imgproc.contourArea(points))< 15000) {
+
+                if (Math.abs(Imgproc.contourArea(points)) > 1000 && Math.abs(Imgproc.contourArea(points))< 15000) {
                     Imgproc.drawContours(image, contours, i, new Scalar(150, 0, 0), 3);
                     Rect rect = Imgproc.boundingRect(points);
                     rectangles.add(rect);
                 }
             }
         }
-
+        System.out.println("Found " + rectangles.size() + " rectangles");
         if (rectangles.size() == 9 ) {
-            System.out.println("Found all colors!");
+            System.out.println("Found cube wall!");
             CubeWall wall = generateCubeWall(rectangles, imageCopy);
-            if (wall != null)
-                walls.add(wall);
+            if (wall != null) {
+                if (walls.stream().allMatch(w -> w.wallColor != wall.wallColor)) {
+                    System.out.println("Added " + wall.wallColor.toString() + " wall to list!");
+                    walls.add(wall);
+                }
+                else {
+                    System.out.println("This wall was already recorded!");
+                }
+            }
+            if (walls.size() == 6)
+                System.out.println("Cube recognized. Processing solution...");
         }
         else {
             System.out.println("Cube was not recognized :(");
