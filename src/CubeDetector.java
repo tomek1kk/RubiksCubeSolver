@@ -29,7 +29,7 @@ public class CubeDetector {
         Mat dilated = new Mat();
         Imgproc.dilate(canny,dilated, kernel);
 
-        // FIND COUNTURS
+        // FIND CONTOURS
         List<MatOfPoint> contours = new ArrayList<>();
         Mat hierarchy = new Mat();
         Imgproc.findContours(dilated, contours, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
