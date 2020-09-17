@@ -34,11 +34,11 @@ public class CubeDetector {
         Mat hierarchy = new Mat();
         Imgproc.findContours(dilated, contours, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
         Mat drawing = Mat.zeros(dilated.size(), CvType.CV_8UC3);
-
+        Imgcodecs.imwrite("output/edges.jpg", dilated);
         List<MatOfPoint2f> squareContours = new ArrayList<>();
         for (int i = 0; i < contours.size(); i++) {
             MatOfPoint2f approx = new MatOfPoint2f();
-            double epsilon = 0.1 * Imgproc.arcLength(new MatOfPoint2f(contours.get(i).toArray()),true);
+            double epsilon = 0.04 * Imgproc.arcLength(new MatOfPoint2f(contours.get(i).toArray()),true);
             Imgproc.approxPolyDP(new MatOfPoint2f(contours.get(i).toArray()), approx, epsilon, true);
             if (approx.rows() == 4 && approx.cols() == 1) {
                 MatOfPoint points = new MatOfPoint(approx.toArray());
@@ -46,6 +46,7 @@ public class CubeDetector {
                 if (Math.abs(Imgproc.contourArea(points)) > 1000 && Math.abs(Imgproc.contourArea(points))< 15000) {
                     Imgproc.drawContours(image, contours, i, new Scalar(150, 0, 0), 3);
                     Rect rect = Imgproc.boundingRect(points);
+                    Imgcodecs.imwrite("output/edge2.jpg", image);
                     rectangles.add(rect);
                 }
             }
@@ -55,12 +56,20 @@ public class CubeDetector {
             System.out.println("Found cube wall!");
             CubeWall wall = generateCubeWall(rectangles, imageCopy);
             if (wall != null) {
+                Frame.addWall(wall);
+                wall.printWall();
                 if (walls.stream().allMatch(w -> w.wallColor != wall.wallColor)) {
                     System.out.println("Added " + wall.wallColor.toString() + " wall to list!");
                     walls.add(wall);
                 }
                 else {
-                    System.out.println("This wall was already recorded!");
+                    for (int i = 0; i < walls.size(); i++) {
+                        if (walls.get(i).wallColor == wall.wallColor) {
+                            System.out.println(wall.wallColor.toString() + " wall replaced!");
+                            walls.set(i, wall);
+                            break;
+                        }
+                    }
                 }
             }
             if (walls.size() == 6)
@@ -85,10 +94,10 @@ public class CubeDetector {
             return -1;
         });
 
-        List<Rect> rectsBottom = rects.subList(0, 3);
+        List<Rect> rectsTop = rects.subList(0, 3);
         List<Rect> rectsMiddle = rects.subList(3, 6);
-        List<Rect> rectsTop = rects.subList(6, 9);
-        rectsBottom.sort((r1, r2) -> {
+        List<Rect> rectsBottom = rects.subList(6, 9);
+        rectsTop.sort((r1, r2) -> {
             if (r1.x > r2.x)
                 return 1;
             if (r1.x == r2.x)
@@ -102,7 +111,7 @@ public class CubeDetector {
                 return 0;
             return -1;
         });
-        rectsTop.sort((r1, r2) -> {
+        rectsBottom.sort((r1, r2) -> {
             if (r1.x > r2.x)
                 return 1;
             if (r1.x == r2.x)
@@ -126,12 +135,13 @@ public class CubeDetector {
 
     private Color getColor(Rect rect, Mat image) {
         List<RgbColor> colors = RgbColor.cubeColors;
-        double[] test = image.get(156, 74);
-        double[] center = image.get(rect.x + rect.width / 2, rect.y + rect.height / 2);
-        double[] point1 = image.get(rect.x + rect.width / 3, rect.y + rect.height / 3);
-        double[] point2 = image.get(rect.x + rect.width * 2 / 3, rect.y + rect.height / 3);
-        double[] point3 = image.get(rect.x + rect.width / 3, rect.y + rect.height * 2 / 3);
-        double[] point4 = image.get(rect.x + rect.width * 2 / 3, rect.y + rect.height * 2 / 3);
+        Imgcodecs.imwrite("output/rgb.jpg", image);
+
+        double[] center = image.get(rect.y + rect.height / 2, rect.x + rect.width / 2);
+        double[] point1 = image.get( rect.y + rect.height / 3,rect.x + rect.width / 3);
+        double[] point2 = image.get( rect.y + rect.height / 3,rect.x + rect.width * 2 / 3);
+        double[] point3 = image.get( rect.y + rect.height * 2 / 3, rect.x + rect.width / 3);
+        double[] point4 = image.get( rect.y + rect.height * 2 / 3, rect.x + rect.width * 2 / 3);
 
         RgbColor centerColor = new RgbColor(
                 (center[2] + point1[2] + point2[2] + point3[2] + point4[2]) / 5,
@@ -142,7 +152,7 @@ public class CubeDetector {
 
         double min = 999999;
         for (int i = 0; i < colors.size(); i++) {
-            double diff = RgbColor.colorsDiff(centerColor, colors.get(i));
+            double diff = RgbColor.colorsDiff2(centerColor, colors.get(i));
             if (diff < min) {
                 min = diff;
                 closestColor = new RgbColor(colors.get(i).R, colors.get(i).G, colors.get(i).B);

@@ -48,4 +48,8 @@ public class RgbColor {
         return Math.pow((c1.R - c2.R) * 0.3, 2) + Math.pow((c1.G - c2.G) * 0.59, 2) + Math.pow((c1.B - c2.B) * 0.11, 2);
     }
 
+    public static double colorsDiff2(RgbColor c1, RgbColor c2) {
+        return Math.pow((c1.R - c2.R), 2) + Math.pow((c1.G - c2.G), 2) + Math.pow((c1.B - c2.B), 2);
+    }
+
 }
